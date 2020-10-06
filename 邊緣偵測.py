@@ -15,7 +15,8 @@ def getedge(name):
         ret,thresh = cv2.threshold(canny,127,255,cv2.THRESH_BINARY_INV)     #反白
         #cv2.imwrite('['+str(b)+']'+str(t1)+'-'+str(t2)+'.jpg', thresh)     #寫檔
         cv2.imwrite(name+'-edge.png', thresh)
-getedge("oneshoe3")
+getedge("oneshoe1")
+
 '''
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-

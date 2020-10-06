@@ -24,7 +24,7 @@ def Embed_mod(test,num,directory,mod_num):
                 f.write(str(location_map[col][row]))
             f.write('\n')
         f.close()
-        image_lc = io.imread(directory+'\\'+test+"{:08d}.png".format(i))                           #標記嵌密的地方的圖(紅：有嵌密，白：沒嵌密)
+        image_lc = io.imread(directory+'\\'+test+"{:08d}.png".format(i))                           #標記嵌密的地方的圖(紅：有嵌密，白，沒嵌密)
         for col in range(image_lc.shape[0]):
             for row in range(image_lc.shape[1]):
                 if location_map[col][row] == 0 :

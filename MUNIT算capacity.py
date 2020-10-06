@@ -1,4 +1,21 @@
 # -*- coding: utf-8 -*-
+#######################################################
+'''
+input
+    輸入一張圖片：
+        1.資料夾名稱
+        2.檔案名稱(圖片)，單純用來記錄在xlsx檔案中
+        3.輸出路徑-xlsx
+        4.輸出路徑-lc-txt
+        5.輸出路徑-lc-png
+        6.嵌密mod值
+        7.輸出路徑-lc-txt-壓縮
+        8.輸出路徑-lc-png-壓縮
+        9.嵌密率
+output
+    產生輸入圖片的xlsx檔(依序將所有圖片的資料寫入xlsx檔中)        
+'''
+#######################################################
 from skimage import io
 from openpyxl import Workbook
 import openpyxl
@@ -15,12 +32,13 @@ def cal_capacity(folder_name,
     f_lc= open(dir_lc,'r')                                      #打開location map.txt來計算capacity
     image_lc = io.imread(dir_image_lc)
     count = 0
+    b=int(input("embedding ratio = "))
     for row in range(image_lc.shape[0]):                        #計算capacity，非白區域可嵌密，三個channel，對mod以2為底取log(單位：bit)
         for col in range(image_lc.shape[1]):
             bit=f_lc.read(1)
             if bit== "0" or bit== "2" :
                 count+=1
-    count*=3*math.log(num_mod,2)                                #capacity
+    count*=3*math.log(num_mod,2)*embed_ratio/100                                #capacity
     try:#若檔案存在，直接打開繼續寫xlsx檔
         wb = openpyxl.load_workbook(dir_out)
     except:#若檔案不存在，建立新xlsx檔
@@ -62,7 +80,7 @@ cal_capacity("oneshoe1"
              ,"./oneshoe1/output00000000/output00000000_location map.tar.gz"
              ,"./oneshoe1/output00000000/output00000000_lc.tar.gz")
 '''
-for i in range(3):
+for i in range(3):                                                                              #依次執行函式
     for j in range(20):
         name1 = "output{:08d}".format(j)
         name2 = "/output{:08d}".format(j)
@@ -75,4 +93,5 @@ for i in range(3):
              ,name4+name2+name2+"_lc.png"
              ,7
              ,name4+name2+name2+"_location map.tar.gz"
-             ,name4+name2+name2+"_lc.tar.gz")
+             ,name4+name2+name2+"_lc.tar.gz"
+             )
