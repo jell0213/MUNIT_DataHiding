@@ -18,7 +18,10 @@ input
         8.輸出路徑-lc-png-壓縮
         9.嵌密率
 output
-    產生輸入圖片的xlsx檔(依序將所有圖片的資料寫入xlsx檔中)        
+    產生輸入圖片的xlsx檔(依序將所有圖片的資料寫入xlsx檔中)      
+        包含執行時間
+注意事項
+    目前路徑固定為embed_mod3資料夾的相對路徑(本程式與此資料夾要在相同路徑)
 '''
 #######################################################
 from skimage import io
@@ -31,26 +34,11 @@ def cal_capacity(folder_name,
                  num_image,
                  num_mod,
                  embed_ratio):
-    '''
-    try:#若檔案存在，直接打開繼續寫xlsx檔
-        wb = openpyxl.load_workbook("./embed_mod3/embed_mod3_capacity.xlsx")
-        #wb = openpyxl.load_workbook(dir_out)
-    except:#若檔案不存在，建立新xlsx檔
-        wb = Workbook()
-        ws = wb.active
-        ws.append(["embed_mod3","mod="+str(num_mod),str(embed_ratio)+"%","256*256"])
-        ws.append(["","","文字檔","","","","","","","圖片檔"])
-        #ws.append(["檔名","嵌密量","大小(bit)","壓縮大小","壓縮率","嵌密壓縮率","大小(bit)","壓縮大小","壓縮率","嵌密壓縮率"])
-        ws.append(["檔名","嵌密量","大小(bit)","壓縮大小","壓縮率","嵌密壓縮","淨藏量","嵌入率","淨嵌入率","大小(bit)","壓縮大小","壓縮率","嵌密壓縮","淨藏量","嵌入率","淨嵌入率"])
-        wb.save("./embed_mod3/embed_mod3_capacity.xlsx")
-        wb = openpyxl.load_workbook("./embed_mod3/embed_mod3_capacity.xlsx")
-    '''
     wb = Workbook()
     ws = wb.active
     ws.append(["embed_mod3","mod="+str(num_mod),str(embed_ratio)+"%","256*256"])
     ws.append(["","","文字檔","","","","","","","圖片檔"])
-    #ws.append(["檔名","嵌密量","大小(bit)","壓縮大小","壓縮率","嵌密壓縮率","大小(bit)","壓縮大小","壓縮率","嵌密壓縮率"])
-    ws.append(["檔名","嵌密量","大小(bit)","壓縮大小","壓縮率","嵌密壓縮","淨藏量","嵌入率","淨嵌入率","大小(bit)","壓縮大小","壓縮率","嵌密壓縮","淨藏量","嵌入率","淨嵌入率"])
+    ws.append(["檔名","嵌密量","大小(bit)","壓縮大小","壓縮率","嵌密壓縮率","淨藏量","rare bpp","bpp","大小(bit)","壓縮大小","壓縮率","嵌密壓縮率","淨藏量","pure bpp","bpp"])
     wb.save("./embed_mod3/embed_mod3_capacity.xlsx")
     wb = openpyxl.load_workbook("./embed_mod3/embed_mod3_capacity.xlsx")
     ws = wb['Sheet']
@@ -77,26 +65,26 @@ def cal_capacity(folder_name,
         compress_code_image_lc=(size_image_lc_gz/count)*100#lm嵌密壓縮率(%)
         net_capacity_lc=count-size_lc_gz#lc.txt淨藏量
         net_capacity_image_lc=count-size_image_lc_gz#lc.png淨藏量
-        net_embedding_ratio_lc=net_capacity_lc/(256*256)*100#lc.txt淨嵌入率(%)
-        net_embedding_ratio_image_lc=net_capacity_image_lc/(256*256)*100#lc.png淨嵌入率(%)
-        embedding_ratio_lc=count/(256*256)*100#嵌入率(%)(txt和png相同)
+        net_embedding_ratio_lc=net_capacity_lc/(256*256)#lc.txt淨嵌入率(%)
+        net_embedding_ratio_image_lc=net_capacity_image_lc/(256*256)#lc.png淨嵌入率(%)
+        embedding_ratio_lc=count/(256*256)#嵌入率(%)(txt和png相同)
         
         ws.append(["output{:08d}".format(i),
-                   count,
-                   size_lc,
-                   size_lc_gz,
-                   str(round(compress_lc,2))+'%',#取到小數第三位
-                   str(round(compress_code_lc,2))+'%',
-                   net_capacity_lc,
-                   str(round(net_embedding_ratio_lc,2))+'%',
-                   str(round(embedding_ratio_lc,2))+'%',
-                   size_image_lc,
-                   size_image_lc_gz,
-                   str(round(compress_image_lc,2))+'%',
-                   str(round(compress_code_image_lc,2))+'%',
-                   net_capacity_image_lc,
-                   str(round(net_embedding_ratio_image_lc,2))+'%',
-                   str(round(embedding_ratio_lc,2))+'%'])
+                   float('%.2f'%round(count,2)),    #四捨五入到指定小數位
+                   float('%.2f'%round(size_lc,2)),
+                   float('%.2f'%round(size_lc_gz,2)),
+                   str(float('%.1f'%round(compress_lc,1)))+'%',
+                   str(float('%.1f'%round(compress_code_lc,1)))+'%',
+                   float('%.2f'%round(net_capacity_lc,2)),
+                   float('%.2f'%round(net_embedding_ratio_lc,2)),
+                   float('%.2f'%round(embedding_ratio_lc,2)),
+                   float('%.2f'%round(size_image_lc,2)),
+                   float('%.2f'%round(size_image_lc_gz,2)),
+                   str(float('%.1f'%round(compress_image_lc,1)))+'%',
+                   str(float('%.1f'%round(compress_code_image_lc,1)))+'%',
+                   float('%.2f'%round(net_capacity_image_lc,2)),
+                   float('%.2f'%round(net_embedding_ratio_image_lc,2)),
+                   float('%.2f'%round(embedding_ratio_lc,2))])
         a[0]+=count
         a[1]+=size_lc
         a[2]+=size_lc_gz
@@ -116,32 +104,32 @@ def cal_capacity(folder_name,
     
     for i in range(20):
         a[i]/=num_image
-    ws.append(["檔名","嵌密量","大小(bit)","壓縮大小","壓縮率","嵌密壓縮","淨藏量","嵌入率","淨嵌入率","大小(bit)","壓縮大小","壓縮率","嵌密壓縮","淨藏量","嵌入率","淨嵌入率"])
+    ws.append(["檔名","嵌密量","大小(bit)","壓縮大小","壓縮率","嵌密壓縮率","淨藏量","pure bpp","bpp","大小(bit)","壓縮大小","壓縮率","嵌密壓縮率","淨藏量","pure bpp","bpp"])
     ws.append([
             "",
-            a[0],
-            a[1],
-            a[2],
-            str(round(a[3],2))+'%',
-            str(round(a[4],2))+'%',
-            a[5],
-            str(round(a[6],2))+'%',
-            str(round(a[7],2))+'%',
-            a[8],
-            a[9],
-            str(round(a[10],2))+'%',
-            str(round(a[11],2))+'%',
-            a[12],
-            str(round(a[13],2))+'%',
-            str(round(a[14],2))+'%',
+            float('%.2f'%round(a[0],2)),
+            float('%.2f'%round(a[1],2)),
+            float('%.2f'%round(a[2],2)),
+            str(float('%.1f'%round(a[3],1)))+'%',
+            str(float('%.1f'%round(a[4],1)))+'%',
+            float('%.2f'%round(a[5],2)),
+            float('%.2f'%round(a[6],2)),
+            float('%.2f'%round(a[7],2)),
+            float('%.2f'%round(a[8],2)),
+            float('%.2f'%round(a[9],2)),
+            str(float('%.1f'%round(a[10],1)))+'%',
+            str(float('%.1f'%round(a[11],1)))+'%',
+            float('%.2f'%round(a[12],2)),
+            float('%.2f'%round(a[13],2)),
+            float('%.2f'%round(a[14],2)),
             ])
     wb.save("./embed_mod3/embed_mod3_capacity.xlsx")#寫檔後存檔
-embed_ratio=int(input("embedding ratio = "))
+embed_ratio=int(input("embedding ratio(%) = "))
 tStart = time.time()#計時開始
-cal_capacity("embed_mod3",50,3,embed_ratio)
+cal_capacity("embed_mod3",5000,3,embed_ratio)
 tEnd = time.time()#計時結束
 wb = openpyxl.load_workbook("./embed_mod3/embed_mod3_capacity.xlsx")
 ws = wb['Sheet']
-ws.append(["total time",tEnd-tStart])
+ws.append(["total time",str(round(tEnd-tStart,2))+" s"])
 wb.save("./embed_mod3/embed_mod3_capacity.xlsx")#寫檔後存檔
-print(tEnd-tStart)
+print(round(tEnd-tStart,2))
