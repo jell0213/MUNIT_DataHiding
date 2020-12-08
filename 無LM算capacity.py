@@ -26,7 +26,7 @@ import openpyxl
 import os
 import math
 import time
-def cal_capacity(folder_name,
+def cal_capacity(in_dir,
                  num_image,
                  num_mod,
                  embed_ratio):
@@ -34,29 +34,36 @@ def cal_capacity(folder_name,
     ws = wb.active
     ws.append(["無LM","mod="+str(num_mod),str(embed_ratio)+"%","256*256"])
     ws.append(["檔名","嵌密量","bpp"])
-    wb.save("./embed_mod3/embed_mod3_capacity.xlsx")
-    wb = openpyxl.load_workbook("./embed_mod3/embed_mod3_capacity.xlsx")
+    wb.save(in_dir+"/embed_mod3_capacity.xlsx")
+    wb = openpyxl.load_workbook(in_dir+"/embed_mod3_capacity.xlsx")
     ws = wb['Sheet']
     a=[]                                                                                                    #儲存各項平均值
     for i in range(2):
-        a.append(0) 
+        a.append(0)
     for i in range(num_image):
-        f_lc= open("./embed_mod3/output{:08d}".format(i)+"/output{:08d}_location map.txt".format(i),'r')    #打開location map.txt來計算capacity
-        image_lc = io.imread("./embed_mod3/output{:08d}".format(i)+"/output{:08d}_lc.png".format(i))
-        count = 0    
-        for row in range(image_lc.shape[0]):                                                                #計算capacity，非白區域可嵌密，三個channel，對mod以2為底取log(單位：bit)
-            for col in range(image_lc.shape[1]):
-                bit=f_lc.read(1)
-                if bit == "0" :
-                    count+=1
-        count*=3*math.log(num_mod,2)*embed_ratio/100                                                        #capacity 
-        embedding_ratio_lc=count/(256*256)                                                                  #嵌入率(%)(txt和png相同)        
+        f_code= in_dir+"/output{:08d}".format(i)+"/output{:08d}_code.txt".format(i)    #打開location map.txt來計算capacity
+        #count = 0    
+        try:#計算code.txt的字數(計算嵌了幾個bit)
+            with open(f_code, encoding='utf8') as file_obj:
+            #由於書名不是英文，要加上 encoding='utf8'
+                contents = file_obj.read()
+            
+        except FileNotFoundError:
+            msg = 'Sorry, the file' + f_code + ' does not exist.'
+            print(msg)
+        else:
+            words = contents.rstrip()
+            num_words = len(words)   
+            print (1)
+        num_words*=3*math.log(num_mod,2)*embed_ratio/100                                                        #capacity 
+        embedding_ratio_lc=num_words/(256*256)                                                                  #嵌入率(%)(txt和png相同)        
         ws.append(["output{:08d}".format(i),
-                   float('%.2f'%round(count,2)),                                                            #四捨五入到指定小數位
+                   float('%.2f'%round(num_words,2)),                                                            #四捨五入到指定小數位
                    float('%.2f'%round(embedding_ratio_lc,2))])
-        a[0]+=count
+        a[0]+=num_words
         a[1]+=embedding_ratio_lc
-        f_lc.close()
+        if i%250 == 0:
+            print(i)
     for i in range(2):
         a[i]/=num_image
     ws.append(["檔名","嵌密量","bpp"])
@@ -65,13 +72,15 @@ def cal_capacity(folder_name,
             float('%.2f'%round(a[0],2)),            
             float('%.2f'%round(a[1],2)),
             ])
-    wb.save("./embed_mod3/embed_mod3_capacity.xlsx")                                                        #寫檔後存檔
+    wb.save(in_dir+"/embed_mod3_capacity.xlsx")                                                        #寫檔後存檔
 embed_ratio=int(input("embedding ratio(%) = "))
 tStart = time.time()                                                                                        #計時開始
-cal_capacity("embed_mod3",5000,3,embed_ratio)                                                               #執行程式------------------------------------------------------------
+#in_dir="D:\\108resercher\\====######RESEARCH######====\\GAN-research\\12.8\\無LM嵌密結果\\100%MOD3"
+in_dir="D:\\108resercher\\====######RESEARCH######====\\GAN-research\\12.8\\無LM嵌密結果\\50%MOD3"
+cal_capacity(in_dir,5000,3,embed_ratio)                                                               #執行程式------------------------------------------------------------
 tEnd = time.time()                                                                                          #計時結束
-wb = openpyxl.load_workbook("./embed_mod3/embed_mod3_capacity.xlsx")
+wb = openpyxl.load_workbook(in_dir+"/embed_mod3_capacity.xlsx")
 ws = wb['Sheet']
 ws.append(["total time",str(round(tEnd-tStart,2))+" s"])
-wb.save("./embed_mod3/embed_mod3_capacity.xlsx")                                                            #寫檔後存檔
+wb.save(in_dir+"/embed_mod3_capacity.xlsx")                                                            #寫檔後存檔
 print(round(tEnd-tStart,2))
