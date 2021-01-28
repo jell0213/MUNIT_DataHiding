@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import math
 from os.path import join
-from openpyxl import Workbook
+import os
+from openpyxl import Workbook, load_workbook
 def base_analyze(maxln,n):    
     loss_ratio = 1 #初始化損失比率的值
     for ln in range(1,maxln+1):
@@ -21,21 +22,21 @@ def print_base_analyze(x):
     print("l2 = "+str(x[2]))
     print("loss_ratio = {:.8f}".format(x[3]))
 def print_base_analyze_excel(x,path):
-    #mypath=str(input("請輸入路徑"))#資料夾路徑      
-    path_excel = join(path,"進制轉換分析.xlsx")
-    if not(path_excel) :
+    #mypath=str(input("請輸入路徑"))#資料夾路徑 
+    path_excel = join(path,str(x[4])+"進制轉換分析.xlsx")
+    if not os.path.isfile(path_excel) :
         wb = Workbook()
         ws = wb.active
         ws.append(["E = {0}".format(x[4])])
-        ws.append("進制", "Ln", "L2", "轉換損失比率")
+        ws.append(["進制", "Ln", "L2", "轉換損失比率"])
         wb.save(path_excel)
-    wb = Workbook()
+    wb = load_workbook(path_excel)
     ws = wb.active
-    ws.append(["E = {0}".format(x[4])])
-    ws.append("進制", "Ln", "L2", "轉換損失比率")
     ws.append([x[0],x[1],x[2],x[3]])
     wb.save(path_excel)
 #主程式  
-maxln = 25035 #設定最長可嵌密數
+maxln = 75105 #設定最長可嵌密數
 for n in range(3,9):
-    print_base_analyze(base_analyze(maxln,n))
+    path = 'D:\\108RE\\MUNIT\\MUNIT-meeting紀錄\\2.2-meeting'
+    #print_base_analyze(base_analyze(maxln,n))
+    print_base_analyze_excel(base_analyze(maxln,n),path)
